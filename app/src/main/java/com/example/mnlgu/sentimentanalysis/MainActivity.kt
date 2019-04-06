@@ -14,6 +14,26 @@ class MainActivity : AppCompatActivity(),TextToSpeech.OnInitListener {
     private var buttonSpeak: Button? = null
     private var editText: EditText? = null
 
+    private var palabrasPositivas = arrayOf("feliz", "bueno", "excelente", "maravilloso", "alegre", "contento", "soleado",
+        "agradable", "bonito", "apasionado", "placer", "genial", "gracias", "agradecido", "disfrutando", "disfruto",
+        "estupendo", "victoria", "ahuevo", "vamos", "puedes", "éxito", "próspero", "bendecido", "paz", "logré", "felicidad",
+        "amor", "positivo", "bailar", "bailo", ":)", ":\'v")
+
+    private var palabrasNegativas = arrayOf("triste", "enojado", "molesto", "incómodo", "estresado", "preocupado", "crudo",
+        "sufrir", "sufro", "desamor", "roto", "muerte", "pobre", "desepcionado", "negativo", "odio", "spoilers", "peligro",
+        "problema", "depresión", "deprimido", "nadie", "guerra", "infidelidad", "chale", "cerrado", "no", "enfermo", "injusto",
+        "sad", "llorar", "lloro",  ":(", ">:v")
+
+    private var palabrasNeutrales = arrayOf("bien", "normal", "tranquilo", "equis", "regular", "a veces", "indiferente",
+        "normalmente", "pues bien", "lo de siempre", "lo mismo", "me da igual", "igual", "mas o menos", "70", "ok", "pues",
+        "pasé", "", ":|", ":v")
+
+    private var menuPositivo = "menu positivo"
+
+    private var menuNegativo = "menu negativo"
+
+    private var menuNeutral = "menu neutral"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -47,7 +67,18 @@ class MainActivity : AppCompatActivity(),TextToSpeech.OnInitListener {
 
     private fun speakOut() {
         val text = editText!!.text.toString()
-        tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null,"")
+
+        val contado = contarPalabras(text)
+        var aux : String = "no se tiene un menu"
+
+        if (contado == 1)
+            aux = menuPositivo
+        else if (contado == 0)
+            aux = menuNeutral
+        else
+            aux = menuNegativo
+
+        tts!!.speak(aux, TextToSpeech.QUEUE_FLUSH, null,"")
     }
 
     public override fun onDestroy() {
@@ -57,6 +88,40 @@ class MainActivity : AppCompatActivity(),TextToSpeech.OnInitListener {
             tts!!.shutdown()
         }
         super.onDestroy()
+    }
+
+    public fun contarPalabras(cadena : String): Int{
+        var contPositivo = 0
+        var contNegativo = 0
+        var contNeutral = 0
+
+        for (item in palabrasPositivas){
+            if (cadena.contains(item))
+                contPositivo++
+        }
+        for (item2 in palabrasNegativas){
+            if(cadena.contains(item2))
+                contNegativo++
+        }
+        for (item3 in palabrasNeutrales) {
+            if(cadena.contains(item3))
+                contNeutral++
+        }
+
+        if (contPositivo > contNegativo && contPositivo > contNeutral)
+            return 1
+        else if (contNegativo > contPositivo && contNegativo > contNeutral)
+            return -1
+        else if (contNeutral > contPositivo && contNeutral > contNegativo)
+            return 0
+        else if (contPositivo == contNegativo)
+            return 0
+        else if (contNeutral == contNegativo && contPositivo > contNegativo)
+            return 1
+        else if (contNeutral == contPositivo && contNegativo > contPositivo)
+            return -1
+
+        return 0
     }
 
 }
